@@ -78,6 +78,22 @@ is_git_repo() {
   git rev-parse --is-inside-work-tree >/dev/null 2>&1
 }
 
+find_pi() {
+  if [[ -n "${PI_BIN:-}" ]]; then
+    echo "$PI_BIN"
+    return 0
+  fi
+
+  if command -v pi >/dev/null 2>&1; then
+    command -v pi
+    return 0
+  fi
+
+  if [[ -n "${HOME:-}" ]]; then
+    find "$HOME/.local/share/fnm/node-versions" -path "*/installation/bin/pi" -type f -o -type l 2>/dev/null | sort | tail -n 1
+  fi
+}
+
 current_version="$(pkg_get '.version')"
 package_name="$(pkg_get '.name')"
 
@@ -148,7 +164,13 @@ trap restore_version EXIT
 
 echo ""
 echo "Validating Pi extension load..."
-pi -e "$ROOT" --list-models >/tmp/pi-tmux-cursor-focus-release-pi.out 2>&1
+pi_bin="$(find_pi)"
+if [[ -z "$pi_bin" ]]; then
+  echo "Could not find the pi executable." >&2
+  echo "Set PI_BIN=/path/to/pi and rerun the release script." >&2
+  exit 1
+fi
+"$pi_bin" -e "$ROOT" --list-models >/tmp/pi-tmux-cursor-focus-release-pi.out 2>&1
 
 echo "Checking package contents..."
 pnpm pack --dry-run
