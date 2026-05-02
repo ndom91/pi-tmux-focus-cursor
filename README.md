@@ -4,6 +4,11 @@ A Pi extension that hides the editor cursor in unfocused tmux panes.
 
 It wraps the active Pi editor instead of replacing it, so it works alongside prompt/status-bar extensions such as `pi-glance`.
 
+> Focus vs Unfocused
+> ![](./github/assets/focused.png)
+>
+> ![](./github/assets/unfocused.png)
+
 ## Install
 
 ```bash
